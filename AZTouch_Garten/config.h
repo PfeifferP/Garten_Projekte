@@ -1,9 +1,3 @@
-// Name des Namespace für die WiFi-Konfigurstion
-const char* wifi_namespace = "wifi";
-
-// Name des Namespace für die Compile-Zeit
-const char* boot_namespace = "boot";
-
 /* ------------------------------------------------------------
  * WiFi (NTP) und Datum/Zeit
  * ------------------------------------------------------------ */
@@ -24,3 +18,13 @@ unsigned long timer_ntp=0,   //NTP-Server abfragen
               timer_time=0;  // Uhrzeit anzeigen
 
 /* ------------------------------------------------------------ */
+hw_timer_t * tim1 = NULL;
+hw_timer_t * tim2 = NULL;
+
+#define BKLED 15
+#define BEEPER 26
+#define CONFIG_FILE "/config.json"
+
+struct settings {
+  String ssid, wkey, ntps;
+}
