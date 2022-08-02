@@ -1,3 +1,4 @@
+
 void loadConfig(){
   conf.begin("configs", false);
   bool doesExist = conf.isKey("isinit"); 
