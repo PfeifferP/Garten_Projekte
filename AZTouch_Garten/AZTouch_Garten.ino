@@ -15,14 +15,15 @@
 TFT_eSPI tft = TFT_eSPI();
 AsyncWebServer server(80);
 Preferences conf;
+
 /* -------------------------------------------------------- */
 #include "config.h"
 #include "functions.h"
+#include "wifi.h"
+#include "cron.h"
 /* -------------------------------------------------------- */
 void setup() {
-  bool f_error = false; // Fehler-Flag
-  String t_error = ""; // Fehlertext
-  struct settings mySet;
+
   Serial.begin(115200);
 // set blank interrupt statusline
   tim1 = timerBegin(0,80,true);
@@ -37,6 +38,7 @@ void setup() {
 // set Beeper
   ledcSetup(1, 8000, 12);
   ledcAttachPin(BEEPER, 1);
+  
 // set filesystem
   if(!LittleFS.begin(false, "")) {
     Serial.println("Formatiere Filesystem!");
@@ -45,27 +47,37 @@ void setup() {
   }
 // load Config
   loadConfig();
-  Serial.println(ssid);
-  Serial.println(wkey);
-  Serial.println(ntps);
-// set WiFi
-  // initWiFi();
 // set TFT
   tft.init();
   tft.setRotation(1);
   //sound(1000);
-  tft.fillScreen(TFT_WHITE);
-  tft.setTextColor(TFT_BLACK, TFT_WHITE);
+  initTouch();
+  tft.fillScreen(TFT_BLACK);
+  tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.fillRoundRect(0, 0, 320, 16, 1, TFT_LIGHTGREY);
   tft.drawRoundRect(0, 0, 320, 16, 1, TFT_BLACK);
   clearStatusBar();
-  setStatusBar("init perfekt!");
-  //server.begin();
+// set WiFi
+   initWiFi();
 
+  //setStatusBar("init perfekt!");
+  //server.begin();
+  
+
+  int xpos = tft.width() / 2; // Half the screen width
+  int ypos = tft.height() / 2;
+  
+  tft.setTextColor(TFT_WHITE, TFT_BLACK);
+  tft.drawCentreString("20:33", xpos, ypos, 8);
 }
 
 
 
 void loop() {
-
+  uint16_t x = 0, y = 0;
+  bool tpressed = tft.getTouch(&x, &y);
+  if (tpressed){
+    tft.fillCircle(x,y,2,TFT_WHITE);
+  }
+  cronjob();
 }
