@@ -1,0 +1,102 @@
+<!doctype html>
+
+<html lang="en" class="h-100">
+  <head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="bootstrap.min.css" />
+	<link rel="stylesheet" href="style.css" />
+	<script src="jquery.min.js" type="text/javascript" crossorigin="anonymous"></script>
+    <script src="bootstrap.bundle.min.js" type="text/javascript" crossorigin="anonymous"></script>
+  </head>
+
+  <body class="d-flex flex-column h-100">
+  <header>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Fixed navbar</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse " id="navbarCollapse">
+          <ul class="navbar-nav mr-auto ">
+            <li class="nav-item active">
+              <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Admin</a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="#">MQTT</a></li>
+                <li><a class="dropdown-item" href="#">Influxdb</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="/admin/wifi">Wifi Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="/edit">Editor</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>  
+    </nav>
+  </header>
+ <!-- Begin page content -->
+   <main class="flex-shrink-0">
+   <div class="container">
+        <h1 class="mt-5 fw-bold">Wifi Settings</h1>
+        <div class="row d-flex justify-content-center">
+          <div class="col-md-6 border rounded rounded-3 border-2 border-warning ">
+            <table class="content table table-bordered table-striped" id="wifiTable">
+              <tr>
+                <th>SSID</th>
+                <th>RSSI</th>
+              </tr>
+            </table>
+          </div>  
+        </div>
+        <div class="row d-flex justify-content-center">
+          <div class="col-md-6 border border-primary rounded rounded-3 border-3 m-4">
+              <select class="form-select form-select-sm m-2" id="ssid" name="ssid"></select>
+              <div class="input-group input-group-sm m-2">
+                <span class="input-group-text" >Key:</span>
+                <input type="password" class="form-control" id="key" name="key">
+              </div>
+  	          <div>
+                <button type="button" class="btn btn-primary m-2">connect</button>
+              </div>
+		  </div> 
+		</div>
+	</div>
+	</main>
+	<footer class="footer mt-auto py-3 bg-light">
+		<div class="container">
+			<span class="text-muted">Place sticky footer content here.</span>
+		</div>
+	</footer>
+    <script type="text/javascript" crossorigin="anonymous">
+	$(document).ready(function(){
+        $.ajax({
+            url: 'wifinets.json',
+            dataType: 'json',
+            success: function(data) {
+                for (var i=0; i<data.length; i++) {
+                    var row = $('<tr><td>' + data[i].ssid+ '</td><td>' + data[i].rssi + '</td></tr>');
+                    $('#wifiTable').append(row);
+                }
+                for (var i=0; i<data.length; i++) { 
+                  var option = $('<option value=' + data[i].ssid + '>' + data[i].ssid + '</option>');
+                  $('#ssid').append(option);
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                alert('Error: ' + textStatus + ' - ' + errorThrown);
+            }
+        });
+		});
+      </script>
+  </body>
+</html>
+
+ 
+    
+  
+    
