@@ -11,6 +11,7 @@
 
 #include <SPI.h>
 #include <TFT_eSPI.h>
+
 /* -------------------------------------------------------- */
 TFT_eSPI tft = TFT_eSPI();
 AsyncWebServer server(80);
@@ -58,17 +59,65 @@ void setup() {
   tft.drawRoundRect(0, 0, 320, 16, 1, TFT_BLACK);
   clearStatusBar();
 // set WiFi
-   initWiFi();
+   if(initWiFi()) {
+    // Route for root / web page
+    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+      request->send(LittleFS, "/index.html", "text/html");
+    });
+    server.serveStatic("/", LittleFS, "/");
+    server.begin();
+  } 
+  else {
+    // Connect to Wi-Fi network with SSID and password
+    Serial.println("Setting AP (Access Point)");
+    // NULL sets an open Access Point
+    WiFi.softAP("ESP-WIFI-MANAGER", NULL);
 
-  //setStatusBar("init perfekt!");
-  //server.begin();
-  
+    IPAddress IP = WiFi.softAPIP();
+    Serial.print("AP IP address: ");
+    Serial.println(IP); 
+
+    // Web Server Root URL
+    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+      request->send(LittleFS, "/wifimanager.html", "text/html");
+    });
+    server.serveStatic("/", SPIFFS, "/");
+    
+    server.on("/", HTTP_POST, [](AsyncWebServerRequest *request) {
+      int params = request->params();
+      for(int i=0;i<params;i++){
+        AsyncWebParameter* p = request->getParam(i);
+        if(p->isPost()){
+          // HTTP POST ssid value
+          if (p->name() == "ssid") {
+            mySet.ssid = p->value().c_str();
+            Serial.print("SSID set to: ");
+            Serial.println(mySet.ssid);
+          }
+          // HTTP POST pass value
+          if (p->name() == "pass") {
+            mySet.wkey = p->value().c_str();
+            Serial.print("Password set to: ");
+            Serial.println(mySet.wkey);
+          }
+          //Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
+        }
+      }
+      request->send(200, "text/plain", "Done. ESP will restart.");
+      delay(3000);
+      ESP.restart();
+    });
+    server.begin();
+  }
 
   int xpos = tft.width() / 2; // Half the screen width
   int ypos = tft.height() / 2;
   
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.drawCentreString("20:33", xpos, ypos, 8);
+
+
+  
 }
 
 
