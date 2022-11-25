@@ -1,9 +1,16 @@
 String getSensorReadings(){
   
   DynamicJsonDocument json(1024);
-  json["temp1"] = String(BME280.readTemperature());
-  json["humi"] =  String(BME280.readHumidity());
-  json["press"] = String(BME280.readPressure()/100);
+  
+  temperatur = BME280.readTemperature();
+  feuchte = BME280.readHumidity();
+  luftdruck = BME280.readPressure() / 100.0F;
+  taupunkt = 243.04 * (log(feuchte/100.0) + ((17.625 * temperatur)/(243.04 + temperatur)))/(17.625 - log(feuchte/100.0) - ((17.625 * temperatur)/(243.04 + temperatur)));
+   
+  json["temperatur"] = String(temperatur);
+  json["feuchte"] =  String(feuchte);
+  json["luftdruck"] = String(luftdruck);
+  json["taupunkt"] = String(taupunkt);
   String jsonString;
   serializeJson(json, jsonString);
   return jsonString;
@@ -20,7 +27,8 @@ void reconnect() {
     if (client.connect(clientId.c_str())) {
       Serial.println("connected");
       // Once connected, publish an announcement...
-      client.publish("sensoren/aussen", "online");
+      client.publish("sensoren/aussen/status", "online");
+      client.publish("sensoren/aussen/ip", WiFi.localIP().toString().c_str());
       // ... and resubscribe
       client.subscribe("sensoren/aussen/command");
     } else {

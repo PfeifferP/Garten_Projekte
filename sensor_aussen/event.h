@@ -8,8 +8,12 @@ void cron2(){
 }
 
 void cron3(){
-  client.publish("sensoren/aussen", "online");
-  client.publish("sensoren/aussen/temperatur", String(BME280.readTemperature()).c_str());
+  // Sende Sensor Daten alle 30 Sek. zum MQTT-Server
+  client.publish("sensoren/aussen/status", "online");
+  client.publish("sensoren/aussen/temperatur", String(temperatur).c_str());
+  client.publish("sensoren/aussen/feuchte", String(feuchte).c_str());
+  client.publish("sensoren/aussen/luftdruck", String(luftdruck).c_str());
+  client.publish("sensoren/aussen/taupunkt", String(taupunkt).c_str());
 }
 
 void setup_events(){
