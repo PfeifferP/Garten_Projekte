@@ -119,11 +119,11 @@ void loop() {
     if ((millis() - lastTime) > timerDelay) {
       display.setContrast(127);
       getBME680Readings();
-      display.setCursor(0,3); display.print("°C   "); display.print(ti); display.print("  "); display.print(ta);
-      display.setCursor(0,4); display.print("%    "); display.print(hi); display.print("  "); display.print(ha);
-      display.setCursor(0,5); display.print("mbar "); display.print(pi); display.print("  "); display.print(pa);
-      display.setCursor(0,6); display.print("°C   "); display.print(di); display.print("  "); display.print(da);
-      display.setCursor(0,7); display.print("kOhm "); display.print(gi);
+      display.setCursor(0,3); display.print(" "); display.print(ti); display.print("  "); display.print(ta);
+      display.setCursor(0,4); display.print(" "); display.print(hi); display.print("  "); display.print(ha);
+      display.setCursor(0,5); display.print(" "); display.print(pi); display.print("  "); display.print(pa);
+      display.setCursor(0,6); display.print(" "); display.print(di); display.print("  "); display.print(da);
+      display.setCursor(0,7); display.print(" "); display.print(gi);
             
       lastTime = millis();
     }
