@@ -74,4 +74,13 @@ void getBME680Readings(){
   display.setCursor(0,5); display.print(" "); display.print(pi); display.print("  "); display.print(pa);
   display.setCursor(0,6); display.print(" "); display.print(di); display.print("  "); display.print(da);
   display.setCursor(0,7); display.print(" "); display.print(gi);
+
+  // Sende Sensor Daten alle 60 Sek. zum MQTT-Server
+  client.publish("sensoren/innen/status", "online");
+  client.publish("sensoren/innen/temperatur", String(ti).c_str());
+  client.publish("sensoren/innen/feuchte", String(hi).c_str());
+  client.publish("sensoren/innen/luftdruck", String(pi).c_str());
+  client.publish("sensoren/innen/taupunkt", String(di).c_str());
+  client.publish("sensoren/innen/gas", String(gi).c_str());
+
 }
