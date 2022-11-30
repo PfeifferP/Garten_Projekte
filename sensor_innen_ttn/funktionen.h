@@ -32,9 +32,8 @@ void reconnect() {
     if (client.connect(clientId.c_str())) {
       Serial.println("connected");
       // Once connected, publish an announcement...
-      client.publish("sensoren/innen", "online");
+      client.publish("sensoren/innen/status", "online");
       // ... and resubscribe
-//      client.subscribe("sensoren/innen/command");
       client.subscribe("sensoren/aussen/#");
     } else {
       Serial.print("failed, rc=");
@@ -69,4 +68,10 @@ void getBME680Readings(){
   hi = sensor.humidity;
   di = 243.04 * (log(hi/100.0) + ((17.625 * ti)/(243.04 + ti)))/(17.625 - log(hi/100.0) - ((17.625 * ti)/(243.04 + ti)));
   gi = sensor.gas_resistance / 1000.0;
+
+  display.setCursor(0,3); display.print(" "); display.print(ti); display.print("  "); display.print(ta);
+  display.setCursor(0,4); display.print(" "); display.print(hi); display.print("  "); display.print(ha);
+  display.setCursor(0,5); display.print(" "); display.print(pi); display.print("  "); display.print(pa);
+  display.setCursor(0,6); display.print(" "); display.print(di); display.print("  "); display.print(da);
+  display.setCursor(0,7); display.print(" "); display.print(gi);
 }
