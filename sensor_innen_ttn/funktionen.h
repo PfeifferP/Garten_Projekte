@@ -1,0 +1,71 @@
+void callback(char* topic, byte* payload, unsigned int length) {
+  if(strcmp(topic,"sensoren/aussen/feuchte") == 0){
+    payload[length] = '\0';
+    String s = String((char*)payload);
+    ha = s.toFloat();
+  }
+  if(strcmp(topic,"sensoren/aussen/temperatur") == 0){
+    payload[length] = '\0';
+    String s = String((char*)payload);
+    ta = s.toFloat();
+  }
+  if(strcmp(topic,"sensoren/aussen/luftdruck") == 0){
+    payload[length] = '\0';
+    String s = String((char*)payload);
+    pa = s.toFloat();
+  }
+  if(strcmp(topic,"sensoren/aussen/taupunkt") == 0){
+    payload[length] = '\0';
+    String s = String((char*)payload);
+    da = s.toFloat();
+  }
+}
+
+void reconnect() {
+  // Loop until we're reconnected
+  while (!client.connected()) {
+    Serial.print("Attempting MQTT connection...");
+    // Create a random client ID
+    String clientId = "Sensor_innen-";
+    clientId += String(random(0xffff), HEX);
+    // Attempt to connect
+    if (client.connect(clientId.c_str())) {
+      Serial.println("connected");
+      // Once connected, publish an announcement...
+      client.publish("sensoren/innen", "online");
+      // ... and resubscribe
+//      client.subscribe("sensoren/innen/command");
+      client.subscribe("sensoren/aussen/#");
+    } else {
+      Serial.print("failed, rc=");
+      Serial.print(client.state());
+      Serial.println(" try again in 5 seconds");
+      // Wait 5 seconds before retrying
+      delay(5000);
+    }
+  }
+}
+
+void printHex2(unsigned v) {
+    v &= 0xff;
+    if (v < 16)
+        Serial.print('0');
+    Serial.print(v, HEX);
+}
+
+void getBME680Readings(){
+  // Tell BME680 to begin measurement.
+  unsigned long endTime = sensor.beginReading();
+  if (endTime == 0) {
+    Serial.println(F("Failed to begin reading :("));
+    return;
+  }
+  if (!sensor.endReading()) {
+    Serial.println(F("Failed to complete reading :("));
+    return;
+  }
+  temperature = sensor.temperature;
+  pressure = sensor.pressure / 100.0;
+  humidity = sensor.humidity;
+  gasResistance = sensor.gas_resistance / 1000.0;
+}
