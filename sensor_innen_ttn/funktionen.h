@@ -64,8 +64,9 @@ void getBME680Readings(){
     Serial.println(F("Failed to complete reading :("));
     return;
   }
-  temperature = sensor.temperature;
-  pressure = sensor.pressure / 100.0;
-  humidity = sensor.humidity;
-  gasResistance = sensor.gas_resistance / 1000.0;
+  ti = sensor.temperature;
+  pi = sensor.pressure / 100.0;
+  hi = sensor.humidity;
+  di = 243.04 * (log(hi/100.0) + ((17.625 * ti)/(243.04 + ti)))/(17.625 - log(hi/100.0) - ((17.625 * ti)/(243.04 + ti)));
+  gi = sensor.gas_resistance / 1000.0;
 }

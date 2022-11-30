@@ -35,8 +35,7 @@ PubSubClient client(espClient);
 // Pins LoRa
 const lmic_pinmap lmic_pins = {.nss = LoRa_CS, .rxtx = LMIC_UNUSED_PIN, .rst = LoRa_RST, .dio = { LoRa_DIO0, LoRa_DIO1, LoRa_DIO2 }, };
 
-float temperature, humidity, pressure, gasResistance;
-float ta, ha, pa, da;
+float ti, hi, pi, di, gi, ta, ha, pa, da;
 
 unsigned long lastTime = 0;  
 unsigned long timerDelay = 30000;  // send readings timer

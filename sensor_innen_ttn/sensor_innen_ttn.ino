@@ -117,33 +117,18 @@ void loop() {
     client.loop();
   
     if ((millis() - lastTime) > timerDelay) {
-      display.setContrast(255);
+      display.setContrast(127);
       getBME680Readings();
-      display.setCursor(0,3); display.print("Temp.   = "); display.print(temperature);
-      display.setCursor(0,4); display.print("Feuchte = "); display.print(humidity);
-      display.setCursor(0,5); display.print("Druck   = "); display.print(pressure);
-      display.setCursor(0,6); display.print("Gas     = "); display.print(gasResistance);
-      Serial.printf("Temperature = %.2f ºC \n", temperature);
-      Serial.printf("Humidity = %.2f % \n", humidity);
-      Serial.printf("Pressure = %.2f hPa \n", pressure);
-      Serial.printf("Gas Resistance = %.2f KOhm \n", gasResistance);
-      Serial.println();
-      Serial.printf("Humi aussen = %.2f % \n",ha);
-      Serial.printf("temp aussen = %.2f % \n",ta);
-      Serial.printf("press aussen = %.2f % \n",pa);
-      Serial.printf("tau aussen = %.2f % \n",da);
-      
-//      // Send Events to the Web Server with the Sensor Readings
-//      events.send("ping",NULL,millis());
-//      events.send(String(temperature).c_str(),"temperature",millis());
-//      events.send(String(humidity).c_str(),"humidity",millis());
-//      events.send(String(pressure).c_str(),"pressure",millis());
-//      events.send(String(gasResistance).c_str(),"gas",millis());
-      
+      display.setCursor(0,3); display.print("°C   "); display.print(ti); display.print("  "); display.print(ta);
+      display.setCursor(0,4); display.print("%    "); display.print(hi); display.print("  "); display.print(ha);
+      display.setCursor(0,5); display.print("mbar "); display.print(pi); display.print("  "); display.print(pa);
+      display.setCursor(0,6); display.print("°C   "); display.print(di); display.print("  "); display.print(da);
+      display.setCursor(0,7); display.print("kOhm "); display.print(gi);
+            
       lastTime = millis();
     }
     if ((millis() - dimTime ) > timerdim ){
-      display.setContrast(0);
+      display.setContrast(20);
       dimTime = millis();
     }
 }

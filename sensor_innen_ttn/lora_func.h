@@ -4,9 +4,9 @@ void do_send(osjob_t* j){
         Serial.println(F("OP_TXRXPEND, not sending"));
     } else {
         // Prepare upstream data transmission at the next possible time.
-        int tem_i = ((int)(temperature*100))+5000;
-        int dru_i = (int)(pressure*10);
-        int hum_i = (int)(humidity*2);
+        int tem_i = ((int)(ti*100))+5000;
+        int dru_i = (int)(pi*10);
+        int hum_i = (int)(hi*2);
         // Werte aussen
         int hum_a = (int)(ha*2);
         int tem_a = ((int)(ta*100))+5000;
