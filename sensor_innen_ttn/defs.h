@@ -1,7 +1,10 @@
 // OLED Pins
-#define OLED_SCL 15   // GPIO 15
-#define OLED_SDA  4   // GPIO  4
-#define OLED_RST 16   // GPIO 16
+//#define OLED_SCL 15   // GPIO 15
+//#define OLED_SDA  4   // GPIO  4
+//#define OLED_RST 16   // GPIO 16
+
+// LED
+#define LED_BUILTIN 25
 
 // BME680 Pins
 #define BME_SDA 23
@@ -25,8 +28,6 @@ Preferences settings;
 // Name des Namespace für die WiFi-Konfigurstion
 const char* settings_namespace = "config";
 
-// define the display type 
-U8X8_SSD1306_128X64_NONAME_SW_I2C display(/* clock=*/ OLED_SCL, /* data=*/ OLED_SDA, /* reset=*/ OLED_RST);
 
 Adafruit_BME680 sensor;
 

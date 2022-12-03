@@ -20,7 +20,6 @@ void do_send(osjob_t* j){
         
         LMIC_setTxData2(1, payload, sizeof(payload), 0);
         Serial.println(F("Packet queued"));
-        display.setCursor(9,0); display.print("PC:"); display.print(lorapacket);
         lorapacket++;
     }
     // Next TX is scheduled after TX_COMPLETE event.
@@ -44,11 +43,9 @@ void onEvent (ev_t ev) {
             break;
         case EV_JOINING:
             Serial.println(F("EV_JOINING"));
-            display.setCursor(0,0); display.print("LoRa ??"); 
             break;
         case EV_JOINED:
             Serial.println(F("EV_JOINED"));
-            display.setCursor(0,0); display.print("LoRa ok");
             {
               u4_t netid = 0;
               devaddr_t devaddr = 0;

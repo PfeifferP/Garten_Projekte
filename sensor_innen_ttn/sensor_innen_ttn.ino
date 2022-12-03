@@ -12,8 +12,7 @@
 #include <WiFiUdp.h>
 
 
-//OLED 
-#include <U8x8lib.h>
+
 // Sensor
 #include <Adafruit_BME680.h>
 // LMIC
@@ -40,17 +39,12 @@
 void setup() {
     Serial.begin(115200);
     Serial.println(F("Starting"));
-    
-    display.begin();
-    display.setPowerSave(0);
-    display.setFont(u8x8_font_chroma48medium8_r);
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, LOW);
     setup_sensor();
     setup_config();
    
-    display.setCursor(0,5);
-    display.print("Start-ups: ");
-    display.print(counter);
-    
+        
     SPI.begin(5, 19, 27, 18);
 
     WiFi.mode(WIFI_STA);
