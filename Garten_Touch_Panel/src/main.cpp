@@ -6,9 +6,11 @@
 #include "ESPAsyncWebServer.h"
 #include <ESPConnect.h>
 #include <AsyncElegantOTA.h>
+#include <Ticker.h>
 
 hw_timer_t * timer_clear_status = NULL;
-
+Ticker getWifiSignal;
+Ticker pages;
 
 TFT_eSPI tft=TFT_eSPI();
 AsyncWebServer server(80);
@@ -30,6 +32,40 @@ void clear_status_bar(){
   tft.fillRoundRect(0,224,320,240,1,TFT_LIGHTGREY);
   tft.drawRoundRect(0,224,320,240,1,TFT_GREEN);
 }
+
+// converts the dBm to a range between 0 and 100%
+int8_t getWifiQuality() {
+  if (WiFi.status() != WL_CONNECTED){
+    return -1;
+  } else {
+    int32_t dbm = WiFi.RSSI();
+    if(dbm <= -100) {
+        return 0;
+    } else if(dbm >= -50) {
+        return 100;
+    } else {
+        return 2 * (dbm + 100);
+    }
+  }
+}
+
+void drawWifiQuality() {
+  int8_t quality = getWifiQuality();
+  tft.setTextColor(TFT_BLACK, TFT_LIGHTGREY);
+  tft.drawRightString("  " + String(quality) + "%",305, 5, 1);
+  for (int8_t i = 0; i < 4; i++) {
+    tft.drawFastVLine(310 + 2 * i,4,8, TFT_LIGHTGREY);
+    for (int8_t j = 0; j < 2 * (i + 1); j++) {
+      if (quality > i * 25 || j == 0) {
+        tft.drawPixel(310 + 2 * i, 12 - j,TFT_BLACK);
+      }
+    }
+  }
+}
+
+void switch_pages(){
+
+}
 /* --------------------------------------------------------- */
 
 
@@ -48,15 +84,21 @@ void setup() {
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_BLACK, TFT_WHITE);
   clear_top_bar(); clear_status_bar();
-  tft.fillRect(0,16,320,208,TFT_DARKGREY);
+  
   
   // starte Server
   ESPConnect.autoConnect("ESP32Config");
   ESPConnect.begin(&server);
   AsyncElegantOTA.begin(&server);
   server.begin();
-
-  Serial.println(WiFi.localIP().toString()); tft.drawString(WiFi.localIP().toString(),100,100,1);
+  drawWifiQuality();
+  getWifiSignal.attach(60, drawWifiQuality);
+  pages.attach(120,switch_pages);
+  
+  Serial.println(WiFi.localIP().toString()); 
+  tft.setTextColor(TFT_BLACK,TFT_LIGHTGREY);
+  tft.drawString(ESPConnect.getSSID(),10,5,1);
+  tft.drawString(WiFi.localIP().toString(),100,5,1);
 }
 
 void loop() {
