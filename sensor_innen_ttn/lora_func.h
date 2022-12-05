@@ -7,16 +7,27 @@ void do_send(osjob_t* j){
         int tem_i = ((int)(ti*100))+5000;
         int dru_i = (int)(pi*10);
         int hum_i = (int)(hi*2);
+        int tau_i = ((int)(di*100))+5000;
         // Werte aussen
         int hum_a = (int)(ha*2);
         int tem_a = ((int)(ta*100))+5000;
         int dru_a = (int)(pa*10);
-        uint8_t payload[5];
+        int tau_a = ((int)(da*100))+5000;
+        uint8_t payload[14];
         payload[0] = tem_i >>8;
         payload[1] = tem_i;
         payload[2] = dru_i >>8;
         payload[3] = dru_i;
-        payload[4] = hum_i;
+        payload[4] = tau_i >>8;
+        payload[5] = tau_i;
+        payload[6] = hum_i;
+        payload[7] = tem_a >>8;
+        payload[8] = tem_a;
+        payload[9] = dru_a >>8;
+        payload[10] = dru_a;
+        payload[11] = tau_a >>8;
+        payload[12] = tau_a;
+        payload[13] = hum_a;
         
         LMIC_setTxData2(1, payload, sizeof(payload), 0);
         Serial.println(F("Packet queued"));

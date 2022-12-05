@@ -18,8 +18,8 @@
 #define LoRa_DIO2 34  // GPIO 34
 
 // WiFi
-const char* ssid = "devnet-34";
-const char* password = "testerwlan";
+const char* ssid = "Sensor";
+const char* password = "sensorgarten";
 const char* mqtt_server = "192.168.12.3";
 int counts = 10;
 int lorapacket = 0;

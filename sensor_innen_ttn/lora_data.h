@@ -10,4 +10,4 @@ void os_getDevKey (u1_t* buf) {  memcpy_P(buf, APPKEY, 16);}
 
 static osjob_t sendjob;
 
-const unsigned TX_INTERVAL = 120;
+const unsigned TX_INTERVAL = 300;

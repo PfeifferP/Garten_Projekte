@@ -33,6 +33,8 @@ void reconnect() {
       Serial.println("connected");
       // Once connected, publish an announcement...
       client.publish("sensoren/innen/status", "online");
+      client.publish("sensoren/innen/ip", WiFi.localIP().toString().c_str());
+      
       // ... and resubscribe
       client.subscribe("sensoren/aussen/#");
     } else {
