@@ -7,10 +7,22 @@
 #include <ESPConnect.h>
 #include <AsyncElegantOTA.h>
 #include <Ticker.h>
+#include "time.h"
+
+#define NTP_SERVER "de.pool.ntp.org"
+#define MY_TZ "CET-1CEST,M3.5.0/02,M10.5.0/03"
 
 hw_timer_t * timer_clear_status = NULL;
+time_t now;
+tm tm;
+String adate, atime;
+
 Ticker getWifiSignal;
 Ticker pages;
+Ticker refresh_page;
+
+int actpage = 0, oldpage = 99;
+
 
 TFT_eSPI tft=TFT_eSPI();
 AsyncWebServer server(80);
@@ -24,13 +36,13 @@ void IRAM_ATTR timer_clear_statusISR (){
 }
 
 void clear_top_bar(){
-  tft.fillRoundRect(0,0,320,16,1,TFT_LIGHTGREY);
-  tft.drawRoundRect(0,0,320,16,1,TFT_GREEN);
+  tft.fillRect(0,0,320,15,TFT_LIGHTGREY);
+  tft.drawRect(0,0,320,15,TFT_BLACK);
 }
 
 void clear_status_bar(){
-  tft.fillRoundRect(0,224,320,240,1,TFT_LIGHTGREY);
-  tft.drawRoundRect(0,224,320,240,1,TFT_GREEN);
+  tft.fillRect(0,224,320,239,TFT_LIGHTGREY);
+  tft.drawRect(0,224,320,239,TFT_BLACK);
 }
 
 // converts the dBm to a range between 0 and 100%
@@ -64,7 +76,68 @@ void drawWifiQuality() {
 }
 
 void switch_pages(){
+  actpage++; if (actpage > 3) { actpage = 0; }
+  
+  Serial.println(String(actpage));
+}
+void getdatetime(){
+  time(&now);
+  localtime_r(&now, &tm);
+  atime=""; adate="";
+  if (tm.tm_mday < 10) { adate = "0"; } 
+  adate += tm.tm_mday; adate += ".";
+  if (tm.tm_mon + 1 < 10){ adate +="0"; }
+  adate += tm.tm_mon+1; adate += ".";
+  adate += tm.tm_year + 1900;
+  if (tm.tm_hour < 10) { atime = "0"; } 
+  atime += tm.tm_hour; atime += ":";
+  if (tm.tm_min < 10){ atime +="0"; }
+  atime += tm.tm_min; atime += ":";
+  if (tm.tm_sec < 10){ atime +="0"; }
+  atime += tm.tm_sec;
+}
+  
+void ref_page() {
+  getdatetime();
+  //String date = String(tm.tm_mday) + "." + String(tm.tm_mon + 1) + "." + String(tm.tm_year + 1900);
+  //String time = String(tm.tm_hour) + ":" + String(tm.tm_min) + ":" + String(tm.tm_sec);
+  if (oldpage != actpage){
+    tft.fillRect(0,15,320,209,TFT_WHITE);
+    //tft.drawRect(0,15,320,209,TFT_RED);
+    oldpage = actpage;
+  }
+  switch (actpage) {
+  case 1:
+    tft.setTextColor(TFT_GREEN, TFT_WHITE);
+    tft.drawCentreString(adate,160,120,6);
+    tft.drawCentreString(atime,160,60,6);
+    break;
+  case 2:
+    tft.setTextColor(TFT_RED, TFT_WHITE);
+    tft.drawCentreString(adate,160,120,3);
+    tft.drawCentreString(atime,160,60,3);
+    break;
+  case 3:
+    tft.setTextColor(TFT_BLUE, TFT_WHITE);
+    tft.drawCentreString(adate,160,120,4);
+    tft.drawCentreString(atime,160,60,4);
+    break;
+  default:
+    tft.setTextColor(TFT_BLACK, TFT_WHITE);
+    
+    tft.drawCentreString(adate,160,120,7);
+    tft.drawCentreString(atime,160,60,7);
+    break;
+  }
+};
 
+void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info){
+  Serial.println("Disconnected from WiFi access point");
+  Serial.print("WiFi lost connection. Reason: ");
+  Serial.println(info.wifi_sta_disconnected.reason);
+  tft.drawCentreString(String(info.wifi_sta_disconnected.reason),160,120,2);
+  Serial.println("Trying to Reconnect");
+  //WiFi.begin(ssid, password);
 }
 /* --------------------------------------------------------- */
 
@@ -81,20 +154,25 @@ void setup() {
   Serial.println("Starting...");
   tft.init();
   tft.setRotation(1);
-  tft.fillScreen(TFT_BLACK);
+  tft.fillScreen(TFT_WHITE);
   tft.setTextColor(TFT_BLACK, TFT_WHITE);
   clear_top_bar(); clear_status_bar();
-  
+  // starte NTP
+  configTime(0,0,NTP_SERVER);
+  setenv("TZ",MY_TZ,1);
+  tzset();
   
   // starte Server
   ESPConnect.autoConnect("ESP32Config");
   ESPConnect.begin(&server);
+  WiFi.onEvent(WiFiStationDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
   AsyncElegantOTA.begin(&server);
   server.begin();
   drawWifiQuality();
   getWifiSignal.attach(60, drawWifiQuality);
-  pages.attach(120,switch_pages);
-  
+  pages.attach(10,switch_pages);
+  refresh_page.attach(1,ref_page);
+
   Serial.println(WiFi.localIP().toString()); 
   tft.setTextColor(TFT_BLACK,TFT_LIGHTGREY);
   tft.drawString(ESPConnect.getSSID(),10,5,1);
