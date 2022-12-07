@@ -11,6 +11,9 @@
 
 #define NTP_SERVER "de.pool.ntp.org"
 #define MY_TZ "CET-1CEST,M3.5.0/02,M10.5.0/03"
+#define LED0 2
+#define BKLED 15
+#define BEEPER 26
 
 hw_timer_t * timer_clear_status = NULL;
 time_t now;
@@ -148,8 +151,8 @@ void setup() {
   // Interrupt Clear Status
   timer_clear_status = timerBegin(0,80,true);
   timerAttachInterrupt(timer_clear_status, timer_clear_statusISR, true);
-
-
+  pinMode(BKLED, OUTPUT);
+  digitalWrite(BKLED,0);
   Serial.begin(115200);
   Serial.println("Starting...");
   tft.init();
