@@ -117,8 +117,8 @@ void ref_page() {
     break;
   case 2:
     tft.setTextColor(TFT_RED, TFT_WHITE);
-    tft.drawCentreString(adate,160,120,3);
-    tft.drawCentreString(atime,160,60,3);
+    tft.drawCentreString(adate,160,120,2);
+    tft.drawCentreString(atime,160,60,2);
     break;
   case 3:
     tft.setTextColor(TFT_BLUE, TFT_WHITE);
