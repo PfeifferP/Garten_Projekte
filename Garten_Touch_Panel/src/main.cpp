@@ -1,13 +1,16 @@
 #include <Arduino.h>
+#include <FS.h>
 #include "soc/soc.h"
 #include "soc/rtc_cntl_reg.h"
 #include <TFT_eSPI.h>
 #include <AsyncTCP.h>
-#include "ESPAsyncWebServer.h"
+#include <ESPAsyncWebServer.h>
+#include <SPIFFSEditor.h>
 #include <ESPConnect.h>
-#include <AsyncElegantOTA.h>
+#include <LittleFS.h>
+
 #include <Ticker.h>
-#include "time.h"
+#include <time.h>
 
 #define NTP_SERVER "de.pool.ntp.org"
 #define MY_TZ "CET-1CEST,M3.5.0/02,M10.5.0/03"
@@ -19,6 +22,7 @@ hw_timer_t * timer_clear_status = NULL;
 time_t now;
 tm tm;
 String adate, atime;
+String wochentage[7]={"So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"};
 
 Ticker getWifiSignal;
 Ticker pages;
@@ -87,7 +91,8 @@ void getdatetime(){
   time(&now);
   localtime_r(&now, &tm);
   atime=""; adate="";
-  if (tm.tm_mday < 10) { adate = "0"; } 
+  adate = wochentage[tm.tm_wday] + ".  ";
+  if (tm.tm_mday < 10) { adate += "0"; } 
   adate += tm.tm_mday; adate += ".";
   if (tm.tm_mon + 1 < 10){ adate +="0"; }
   adate += tm.tm_mon+1; adate += ".";
@@ -102,34 +107,25 @@ void getdatetime(){
   
 void ref_page() {
   getdatetime();
-  //String date = String(tm.tm_mday) + "." + String(tm.tm_mon + 1) + "." + String(tm.tm_year + 1900);
-  //String time = String(tm.tm_hour) + ":" + String(tm.tm_min) + ":" + String(tm.tm_sec);
   if (oldpage != actpage){
     tft.fillRect(0,15,320,209,TFT_WHITE);
-    //tft.drawRect(0,15,320,209,TFT_RED);
+    
     oldpage = actpage;
   }
+  tft.drawString(adate,10,20,4);
+  tft.drawString(atime,210,20,4);
   switch (actpage) {
   case 1:
     tft.setTextColor(TFT_GREEN, TFT_WHITE);
-    tft.drawCentreString(adate,160,120,6);
-    tft.drawCentreString(atime,160,60,6);
     break;
   case 2:
     tft.setTextColor(TFT_RED, TFT_WHITE);
-    tft.drawCentreString(adate,160,120,2);
-    tft.drawCentreString(atime,160,60,2);
     break;
   case 3:
     tft.setTextColor(TFT_BLUE, TFT_WHITE);
-    tft.drawCentreString(adate,160,120,4);
-    tft.drawCentreString(atime,160,60,4);
     break;
   default:
     tft.setTextColor(TFT_BLACK, TFT_WHITE);
-    
-    tft.drawCentreString(adate,160,120,7);
-    tft.drawCentreString(atime,160,60,7);
     break;
   }
 };
@@ -169,7 +165,15 @@ void setup() {
   ESPConnect.autoConnect("ESP32Config");
   ESPConnect.begin(&server);
   WiFi.onEvent(WiFiStationDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
-  AsyncElegantOTA.begin(&server);
+  Serial.println("Formatting LittleFS filesystem");
+  //LittleFS.format();
+  Serial.println("Mount LittleFS");
+  if (!LittleFS.begin()) {
+    Serial.println("LittleFS mount failed");
+    return;
+  }
+  server.addHandler(new SPIFFSEditor(LittleFS, "admin","admin"));
+  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.htm");
   server.begin();
   drawWifiQuality();
   getWifiSignal.attach(60, drawWifiQuality);
